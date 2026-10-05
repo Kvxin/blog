@@ -31,7 +31,7 @@ const moments = defineCollection({
 	schema: ({ image }) => z.object({
 		date: z.coerce.date(),
 		location: z.string().optional(),
-		images: z.array(z.object({ src: image(), alt: z.string() })).max(9).optional(),
+		images: z.array(z.object({ src: image(), alt: z.string() })).max(20).optional(),
 	}),
 });
 export const collections = { blog, moments };

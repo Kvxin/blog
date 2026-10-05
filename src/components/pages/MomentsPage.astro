@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import MomentGallery from '../MomentGallery.astro';
 import { getCollection, render } from 'astro:content';
 import Header from '../Header.astro';
 import Footer from '../Footer.astro';
@@ -45,13 +45,7 @@ const dateFormat = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'sh
 								<header class="moment-author">Kvxin</header>
 								<div class="moment-body"><Content /></div>
 								{moment.data.images && moment.data.images.length > 0 && (
-									<div class:list={['moment-images', { 'single-image': moment.data.images.length === 1 }]}>
-										{moment.data.images.map((image) => (
-											<a href={image.src.src} target="_blank" rel="noopener noreferrer" aria-label={`${isChinese ? '查看图片' : 'View image'}: ${image.alt}`}>
-												<Image src={image.src} alt={image.alt} widths={[240, 480, 800]} sizes="(max-width: 600px) 30vw, 200px" loading="lazy" />
-											</a>
-										))}
-									</div>
+									<MomentGallery images={moment.data.images} isChinese={isChinese} id={id} />
 								)}
 								{moment.data.location && <p class="moment-location"><span aria-hidden="true">⌖</span> {moment.data.location}</p>}
 								<a class="moment-date" href={`#${id}`} aria-label={`${isChinese ? '这条动态发布于' : 'Posted on'} ${dateFormat.format(moment.data.date)}`}>
@@ -89,11 +83,6 @@ const dateFormat = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'sh
 	.moment-body :global(img) { max-height: 480px; object-fit: contain; margin: 12px 0; }
 	.moment-body :global(h1), .moment-body :global(h2), .moment-body :global(h3) { font-size: 18px; line-height: 1.5; margin: 16px 0 8px; }
 	.moment-body :global(pre) { max-width: 100%; }
-	.moment-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 510px; margin-top: 16px; }
-	.moment-images a { display: block; overflow: hidden; background: var(--swiss-light-gray); }
-	.moment-images :global(img) { width: 100%; aspect-ratio: 1; object-fit: cover; }
-	.single-image { grid-template-columns: 1fr; max-width: 340px; }
-	.single-image :global(img) { aspect-ratio: auto; max-height: 420px; object-fit: contain; }
 	.moment-location { font-size: 12px; color: var(--swiss-gray); margin: 12px 0 0; }
 	.moment-date { display: inline-block; margin-top: 14px; color: var(--swiss-gray); font-size: 12px; text-decoration: none; }
 	.moment-date:hover { color: var(--swiss-red); }

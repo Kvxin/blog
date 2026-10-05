@@ -1,0 +1,242 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+	images: { src: ImageMetadata; alt: string }[];
+	isChinese: boolean;
+	id: string;
+}
+const { images, isChinese, id } = Astro.props;
+---
+
+<moment-gallery class="gallery" role="region" aria-label={isChinese ? '动态配图' : 'Moment photos'}>
+	<button class="gallery-arrow" data-direction="-1" type="button" aria-label={isChinese ? '向左移动一张' : 'Move left by one photo'} aria-controls={`${id}-photos`} disabled hidden>
+		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
+	</button>
+	<div class="gallery-viewport" id={`${id}-photos`} tabindex="0" aria-label={isChinese ? '图片列表，可使用左右方向键滚动' : 'Photo list; use the left and right arrow keys to scroll'}>
+		{images.map((image) => (
+			<a class="gallery-photo" href={image.src.src} target="_blank" rel="noopener noreferrer" aria-label={`${isChinese ? '查看图片' : 'View photo'}: ${image.alt}`}>
+				<Image src={image.src} alt={image.alt} width={240} height={240} loading="lazy" />
+			</a>
+		))}
+	</div>
+	<button class="gallery-arrow" data-direction="1" type="button" aria-label={isChinese ? '向右移动一张' : 'Move right by one photo'} aria-controls={`${id}-photos`} hidden>
+		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
+	</button>
+	<dialog class="lightbox" aria-label={isChinese ? '全屏图片预览' : 'Full-screen photo preview'}>
+		<div class="lightbox-toolbar">
+			<div class="lightbox-brand">Kvxin<span>{isChinese ? '日常影像' : 'PHOTO JOURNAL'}</span></div>
+			<button class="lightbox-close" type="button" aria-label={isChinese ? '关闭预览' : 'Close preview'} autofocus>
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+			</button>
+		</div>
+		<div class="lightbox-stage">
+			<button class="lightbox-arrow" data-preview-direction="-1" type="button" aria-label={isChinese ? '上一张图片' : 'Previous photo'}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h14" /></svg></button>
+			<img class="lightbox-image" src={images[0].src.src} alt={images[0].alt} loading="lazy" />
+			<button class="lightbox-arrow" data-preview-direction="1" type="button" aria-label={isChinese ? '下一张图片' : 'Next photo'}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7M17 12H3" /></svg></button>
+		</div>
+		<div class="lightbox-footer">
+			<div class="lightbox-meta">
+				<span class="lightbox-counter" aria-live="polite" aria-atomic="true"></span>
+				<p class="lightbox-caption"></p>
+				<span class="lightbox-hint">{isChinese ? '← → 切换 · ESC 关闭' : '← → BROWSE · ESC CLOSE'}</span>
+			</div>
+			<div class="lightbox-thumbnails" aria-label={isChinese ? '选择图片' : 'Select a photo'}>
+				{images.map((image, photoIndex) => (
+					<button class="lightbox-thumbnail" data-photo-index={photoIndex} type="button" aria-label={`${isChinese ? '查看第' : 'View photo'} ${photoIndex + 1}${isChinese ? '张图片' : ''}`} aria-pressed="false">
+						<Image src={image.src} alt="" width={100} height={100} loading="lazy" />
+					</button>
+				))}
+			</div>
+		</div>
+	</dialog>
+</moment-gallery>
+
+<style>
+	.gallery { --visible: 10; display: flex; align-items: center; gap: 10px; margin-top: 20px; width: 100%; }
+	.gallery-viewport { display: flex; gap: 6px; flex: 1; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; }
+	.gallery-viewport::-webkit-scrollbar { display: none; }
+	.gallery-photo { display: block; flex: 0 0 calc((100% - (var(--visible) - 1) * 6px) / var(--visible)); min-width: 0; aspect-ratio: 1; scroll-snap-align: start; background: var(--swiss-light-gray); overflow: hidden; }
+	.gallery-photo :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform .2s ease, opacity .2s ease; }
+	.gallery-photo:hover :global(img) { transform: scale(1.06); opacity: .85; }
+	.gallery-arrow { flex-shrink: 0; width: 24px; height: 40px; padding: 0; border: 0; background: transparent; color: var(--swiss-black); font: inherit; cursor: pointer; transition: color .15s ease; }
+	.gallery svg, .lightbox svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+	.gallery-arrow:hover:not(:disabled) { color: var(--swiss-red); }
+	.gallery-arrow:disabled { color: #ccc; cursor: default; }
+	.gallery-arrow[hidden] { display: none; }
+	.gallery-arrow:focus-visible, .gallery-viewport:focus-visible { outline: 2px solid var(--swiss-red); outline-offset: 3px; }
+	.gallery-photo:focus-visible { outline: 2px solid var(--swiss-red); outline-offset: -2px; }
+	.lightbox { position: fixed; inset: 0; width: 100%; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 24px 40px; border: 0; background: #f6f6f4; color: #111; overflow: hidden; overscroll-behavior: contain; }
+	.lightbox[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 28px; animation: lightbox-enter .18s ease-out; }
+	.lightbox::backdrop { background: #f6f6f4; }
+	.lightbox-toolbar { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding-bottom: 16px; border-bottom: 1px solid #ddd; }
+	.lightbox-brand { display: flex; align-items: center; gap: 16px; font-size: 19px; font-weight: 800; letter-spacing: -.03em; }
+	.lightbox-brand span { padding-left: 16px; border-left: 1px solid #ccc; font-size: 10px; font-weight: 500; letter-spacing: .12em; color: #777; }
+	.lightbox-close, .lightbox-arrow { display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: #111; font: inherit; cursor: pointer; transition: color .15s ease, background .15s ease; }
+	.lightbox-close { width: 44px; height: 44px; }
+	.lightbox-stage { display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; gap: 32px; min-height: 0; }
+	.lightbox-image { width: 100%; height: 100%; min-height: 0; max-width: 1200px; justify-self: center; object-fit: contain; user-select: none; }
+	.lightbox-arrow { width: 48px; height: 48px; }
+	.lightbox-arrow:disabled { color: #ccc; cursor: default; }
+	.lightbox-close:hover, .lightbox-arrow:hover:not(:disabled) { background: #eaeae7; color: var(--swiss-red); }
+	.lightbox button:focus-visible { outline: 2px solid var(--swiss-red); outline-offset: 3px; }
+	.lightbox-footer { max-width: 960px; width: 100%; justify-self: center; min-width: 0; }
+	.lightbox-meta { display: flex; align-items: baseline; gap: 16px; padding-bottom: 16px; }
+	.lightbox-counter { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--swiss-red); white-space: nowrap; }
+	.lightbox-caption { flex: 1; margin: 0; color: #666; font-size: 12px; line-height: 1.5; }
+	.lightbox-hint { color: #999; font-size: 10px; letter-spacing: .06em; white-space: nowrap; }
+	.lightbox-thumbnails { display: flex; gap: 8px; overflow-x: auto; padding: 0 2px 6px; scrollbar-width: none; }
+	.lightbox-thumbnails::-webkit-scrollbar { display: none; }
+	.lightbox-thumbnail { flex: 0 0 48px; width: 48px; height: 44px; padding: 0 0 5px; border: 0; border-bottom: 2px solid transparent; background: transparent; opacity: .4; cursor: pointer; transition: opacity .15s ease; }
+	.lightbox-thumbnail :global(img) { width: 100%; height: 100%; object-fit: cover; }
+	.lightbox-thumbnail:hover { opacity: .8; }
+	.lightbox-thumbnail[aria-pressed="true"] { opacity: 1; border-bottom-color: var(--swiss-red); }
+	@keyframes lightbox-enter { from { opacity: 0; } to { opacity: 1; } }
+	@media (max-width: 768px) { .gallery { --visible: 4; gap: 4px; } }
+	@media (max-width: 600px) {
+		.lightbox { padding: 12px 16px; }
+		.lightbox[open] { gap: 16px; }
+		.lightbox-toolbar { padding-bottom: 8px; }
+		.lightbox-stage { grid-template-columns: 28px minmax(0, 1fr) 28px; gap: 8px; }
+		.lightbox-arrow { width: 28px; height: 48px; }
+		.lightbox-meta { gap: 12px; padding-bottom: 12px; }
+		.lightbox-hint { display: none; }
+		.lightbox-brand span { font-size: 9px; }
+		.lightbox-thumbnail { flex-basis: 42px; width: 42px; height: 40px; }
+	}
+	@media (max-height: 450px) { .lightbox[open] { gap: 8px; padding-top: 8px; padding-bottom: 8px; } .lightbox-toolbar { padding-bottom: 0; } .lightbox-thumbnails { display: none; } .lightbox-meta { padding-bottom: 0; } }
+	@media (prefers-reduced-motion: reduce) {
+		.lightbox[open] { animation: none; }
+		.gallery-photo :global(img), .lightbox-thumbnail { transition: none; }
+		.gallery-photo:hover :global(img) { transform: none; }
+	}
+</style>
+
+<script>
+	class MomentGallery extends HTMLElement {
+		private cleanup?: () => void;
+		connectedCallback() {
+			this.cleanup?.();
+			const viewport = this.querySelector<HTMLElement>('.gallery-viewport');
+			const photos = Array.from(this.querySelectorAll<HTMLElement>('.gallery-photo'));
+			const previous = this.querySelector<HTMLButtonElement>('[data-direction="-1"]');
+			const next = this.querySelector<HTMLButtonElement>('[data-direction="1"]');
+			const dialog = this.querySelector<HTMLDialogElement>('.lightbox');
+			const previewImage = this.querySelector<HTMLImageElement>('.lightbox-image');
+			const previewPrevious = this.querySelector<HTMLButtonElement>('[data-preview-direction="-1"]');
+			const previewNext = this.querySelector<HTMLButtonElement>('[data-preview-direction="1"]');
+			const close = this.querySelector<HTMLButtonElement>('.lightbox-close');
+			const counter = this.querySelector<HTMLElement>('.lightbox-counter');
+			const caption = this.querySelector<HTMLElement>('.lightbox-caption');
+			const previewThumbnails = Array.from(this.querySelectorAll<HTMLButtonElement>('.lightbox-thumbnail'));
+			if (!viewport || !photos.length || !previous || !next || !dialog || !previewImage || !previewPrevious || !previewNext || !close || !counter || !caption) return;
+			const controller = new AbortController();
+			const { signal } = controller;
+			let index = 0, maximum = 0, step = 1, timer: ReturnType<typeof setTimeout>;
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+			let previewIndex = 0;
+			let savedOverflow: string | undefined;
+			const showPhoto = (photoIndex: number) => {
+				previewIndex = Math.max(0, Math.min(photos.length - 1, photoIndex));
+				const photo = photos[previewIndex];
+				previewImage.src = photo.getAttribute('href')!;
+				previewImage.alt = photo.querySelector('img')?.alt ?? '';
+				counter.textContent = `${String(previewIndex + 1).padStart(2, '0')} / ${String(photos.length).padStart(2, '0')}`;
+				caption.textContent = previewImage.alt;
+				previewPrevious.disabled = previewIndex === 0;
+				previewNext.disabled = previewIndex === photos.length - 1;
+				previewThumbnails.forEach((thumbnail, thumbnailIndex) => thumbnail.setAttribute('aria-pressed', String(thumbnailIndex === previewIndex)));
+				if (dialog.open) previewThumbnails[previewIndex]?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+			};
+			const unlockScroll = () => {
+				if (savedOverflow !== undefined) {
+					document.documentElement.style.overflow = savedOverflow;
+					savedOverflow = undefined;
+				}
+			};
+			photos.forEach((photo, photoIndex) => {
+				photo.addEventListener('click', (event) => {
+					// Keep the link's standard behavior for opening a separate tab explicitly.
+					if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+					event.preventDefault();
+					showPhoto(photoIndex);
+					dialog.showModal();
+					previewThumbnails[photoIndex]?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+					savedOverflow = document.documentElement.style.overflow;
+					document.documentElement.style.overflow = 'hidden';
+				}, { signal });
+			});
+			previewPrevious.addEventListener('click', () => showPhoto(previewIndex - 1), { signal });
+			previewNext.addEventListener('click', () => showPhoto(previewIndex + 1), { signal });
+			previewThumbnails.forEach((thumbnail, photoIndex) => thumbnail.addEventListener('click', () => showPhoto(photoIndex), { signal }));
+			close.addEventListener('click', () => dialog.close(), { signal });
+			dialog.addEventListener('keydown', (event) => {
+				if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+				if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+					event.preventDefault();
+					showPhoto(previewIndex + (event.key === 'ArrowLeft' ? -1 : 1));
+				}
+			}, { signal });
+			dialog.addEventListener('close', () => {
+				unlockScroll();
+				// Return to the photo being previewed, even if it was outside the original strip.
+				const visible = photos.length - maximum;
+				if (previewIndex < index || previewIndex >= index + visible) {
+					index = Math.min(previewIndex, maximum);
+					viewport.scrollTo({ left: index * step, behavior: 'instant' });
+					updateButtons();
+				}
+				photos[previewIndex].focus({ preventScroll: true });
+			}, { signal });
+			const updateButtons = () => {
+				previous.disabled = index === 0;
+				next.disabled = index === maximum;
+			};
+			const measure = () => {
+				const visible = Number.parseInt(getComputedStyle(this).getPropertyValue('--visible')) || 10;
+				maximum = Math.max(0, photos.length - visible);
+				previous.hidden = next.hidden = maximum === 0;
+				// Showing the controls changes the viewport width, so measure after unhiding.
+				step = photos.length > 1 ? photos[1].offsetLeft - photos[0].offsetLeft : photos[0].offsetWidth;
+				index = Math.min(index, maximum);
+				viewport.scrollTo({ left: index * step, behavior: 'instant' });
+				updateButtons();
+			};
+			const settle = () => {
+				clearTimeout(timer);
+				index = Math.max(0, Math.min(maximum, Math.round(viewport.scrollLeft / step)));
+				updateButtons();
+			};
+			const move = (direction: number) => {
+				index = Math.max(0, Math.min(maximum, index + direction));
+				updateButtons();
+				viewport.scrollTo({ left: index * step, behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+			};
+			previous.addEventListener('click', () => move(-1), { signal });
+			next.addEventListener('click', () => move(1), { signal });
+			viewport.addEventListener('keydown', (event) => {
+				if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+				if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+					event.preventDefault();
+					move(event.key === 'ArrowLeft' ? -1 : 1);
+				}
+			}, { signal });
+			viewport.addEventListener('scroll', () => {
+				clearTimeout(timer);
+				timer = setTimeout(settle, 180);
+			}, { signal });
+			viewport.addEventListener('scrollend', settle, { signal });
+			const observer = new ResizeObserver(measure);
+			observer.observe(this);
+			measure();
+			this.cleanup = () => {
+				controller.abort(); observer.disconnect(); clearTimeout(timer);
+				if (dialog.open) dialog.close();
+				unlockScroll();
+			};
+		}
+		disconnectedCallback() { this.cleanup?.(); }
+	}
+	if (!customElements.get('moment-gallery')) customElements.define('moment-gallery', MomentGallery);
+</script>
