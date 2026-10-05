@@ -27,7 +27,7 @@ export const ui: Record<Locale, UiTranslations> = Object.fromEntries(
 );
 
 export function getLocale(pathname: string): Locale {
-	const segment = pathname.split('/').filter(Boolean)[0];
+	const segment = stripBase(pathname).split('/').filter(Boolean)[0];
 	return locales.includes(segment) ? segment : defaultLocale;
 }
 
@@ -36,8 +36,22 @@ export function getEntryLocale(entry: { id: string }): Locale {
 }
 
 export function stripLocale(pathname: string) {
-	const segment = pathname.split('/').filter(Boolean)[0];
-	return locales.includes(segment) ? pathname.slice(segment.length + 1) || '/' : pathname;
+	const path = stripBase(pathname);
+	const segment = path.split('/').filter(Boolean)[0];
+	return locales.includes(segment) ? path.slice(segment.length + 1) || '/' : path;
+}
+
+// Keep paths supplied by callers relative to the site; add the deployment base once.
+export function sitePath(path: string) {
+	const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+	return `${base}/${path.replace(/^\/+/, '')}`;
+}
+
+export function stripBase(pathname: string) {
+	const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+	return base && (pathname === base || pathname.startsWith(`${base}/`))
+		? pathname.slice(base.length) || '/'
+		: pathname;
 }
 
 export function getLocaleStaticPaths() {
@@ -46,6 +60,7 @@ export function getLocaleStaticPaths() {
 
 export function localePath(path: string, locale: Locale) {
 	const clean = `/${path.replace(/^\/+|\/+$/g, '')}`;
-	return locale === defaultLocale ? (clean === '/' ? '/' : `${clean}/`) : `/${locale}${clean === '/' ? '/' : `${clean}/`}`;
+	const localized = locale === defaultLocale ? (clean === '/' ? '/' : `${clean}/`) : `/${locale}${clean === '/' ? '/' : `${clean}/`}`;
+	return sitePath(localized);
 }
 

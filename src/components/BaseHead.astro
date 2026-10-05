@@ -12,6 +12,7 @@ import { ClientRouter } from 'astro:transitions';
 import type { ImageMetadata } from 'astro';
 import FallbackImage from '../assets/blog-placeholder-1.jpg';
 import { SITE_TITLE } from '../consts';
+import { sitePath } from '../i18n/ui';
 
 interface Props {
 	title: string;
@@ -27,13 +28,13 @@ const { title, description, image = FallbackImage } = Astro.props;
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="icon" type="image/x-icon" href={sitePath('/favicon.ico')} />
+<link rel="sitemap" href={sitePath('/sitemap-index.xml')} />
 <link
 	rel="alternate"
 	type="application/rss+xml"
 	title={SITE_TITLE}
-	href={new URL('rss.xml', Astro.site)}
+	href={new URL(sitePath('/rss.xml'), Astro.site)}
 />
 
 <!-- Astro ClientRouter for instant seamless navigation -->

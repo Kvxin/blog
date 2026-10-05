@@ -91,6 +91,16 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## GitHub Pages 自动部署
+
+站点地址：<https://kvxin.github.io/blog/>，中文页面：<https://kvxin.github.io/blog/zh-cn/>。
+
+`.github/workflows/deploy.yml` 在推送到 `main` 时自动安装依赖、构建 Astro 并部署到 GitHub Pages，也可以在 GitHub Actions 页面手动运行。工作流使用 Node.js 24 和 `pnpm@11.25.0`，依赖由 `pnpm-lock.yaml` 锁定。
+
+仓库 **Settings → Pages → Source** 使用 **GitHub Actions**。部署结果和网址可以在 **Actions → Deploy to GitHub Pages** 查看。
+
+项目使用 `/blog` 作为站点前缀，本地开发访问 `http://localhost:4321/blog/`。内部链接使用 `localePath()`，公共资源使用 `sitePath()`；更换仓库名或绑定自定义域名时，请同步修改 `astro.config.mjs` 中的 `site` 和 `base`。
+
 ## 👀 Want to learn more?
 
 Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

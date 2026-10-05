@@ -1,6 +1,6 @@
 ---
 import { SITE_TITLE } from '../consts';
-import { getLocale, localePath, ui } from '../i18n/ui';
+import { getLocale, localePath, sitePath, ui } from '../i18n/ui';
 
 const locale = getLocale(Astro.url.pathname);
 const t = ui[locale];
@@ -32,7 +32,7 @@ const today = new Date();
 					<li><a href={localePath('/blog', locale)}>{t.blog}</a></li>
 					<li><a href={localePath('/moments', locale)}>{t.momentsTitle}</a></li>
 					<li><a href={localePath('/about', locale)}>{t.about}</a></li>
-					<li><a href={new URL('rss.xml', Astro.site).toString()} target="_blank">RSS FEED</a></li>
+					<li><a href={new URL(sitePath('/rss.xml'), Astro.site).toString()} target="_blank">RSS FEED</a></li>
 				</ul>
 			</div>
 
