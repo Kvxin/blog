@@ -1,0 +1,10 @@
+---
+import AboutPage from '../../components/pages/AboutPage.astro';
+import { getLocaleStaticPaths } from '../../i18n/ui';
+
+export function getStaticPaths() {
+	return getLocaleStaticPaths();
+}
+---
+
+<AboutPage />

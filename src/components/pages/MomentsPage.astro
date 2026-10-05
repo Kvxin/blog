@@ -1,0 +1,107 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+import Header from '../Header.astro';
+import Footer from '../Footer.astro';
+import BaseHead from '../BaseHead.astro';
+import { getEntryLocale, getLocale, ui } from '../../i18n/ui';
+import { SITE_TITLE } from '../../consts';
+
+const locale = getLocale(Astro.url.pathname);
+const t = ui[locale];
+const isChinese = locale === 'zh-cn';
+const moments = (await getCollection('moments', (item) => getEntryLocale(item) === locale)).sort(
+	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const dateFormat = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Shanghai' });
+---
+
+<!doctype html>
+<html lang={locale}>
+	<head>
+		<BaseHead title={`${t.momentsTitle} — ${SITE_TITLE}`} description={t.momentsDescription} />
+	</head>
+	<body>
+		<Header />
+		<main class="moments-main">
+			<header class="moments-masthead">
+	<div class="masthead-meta">
+		<span class="meta-tag">{isChinese ? '日常' : 'MOMENTS'}</span>
+		<span class="log-count">{moments.length} {isChinese ? '条动态' : 'MOMENTS'}</span>
+	</div>
+	<h1 class="moments-title">{t.momentsTitle}</h1>
+	<p class="moments-eyebrow">{isChinese ? '想到什么，就说点什么。随手记下生活里的小事。' : 'Whatever comes to mind. Little things from everyday life.'}</p>
+</header>
+
+			<section class="moments-feed" aria-label={t.momentsTitle}>
+				
+				{moments.map(async (moment) => {
+					const { Content } = await render(moment);
+					const id = `moment-${moment.id.split('/').slice(2).join('-')}`;
+					return (
+						<article class="moment" id={id}>
+							<div class="moment-avatar" aria-hidden="true">K</div>
+							<div class="moment-content">
+								<header class="moment-author">Kvxin</header>
+								<div class="moment-body"><Content /></div>
+								{moment.data.images && moment.data.images.length > 0 && (
+									<div class:list={['moment-images', { 'single-image': moment.data.images.length === 1 }]}>
+										{moment.data.images.map((image) => (
+											<a href={image.src.src} target="_blank" rel="noopener noreferrer" aria-label={`${isChinese ? '查看图片' : 'View image'}: ${image.alt}`}>
+												<Image src={image.src} alt={image.alt} widths={[240, 480, 800]} sizes="(max-width: 600px) 30vw, 200px" loading="lazy" />
+											</a>
+										))}
+									</div>
+								)}
+								{moment.data.location && <p class="moment-location"><span aria-hidden="true">⌖</span> {moment.data.location}</p>}
+								<a class="moment-date" href={`#${id}`} aria-label={`${isChinese ? '这条动态发布于' : 'Posted on'} ${dateFormat.format(moment.data.date)}`}>
+									<time datetime={moment.data.date.toISOString()}>{dateFormat.format(moment.data.date)}</time>
+								</a>
+							</div>
+						</article>
+					);
+				})}
+				<p class="feed-end">{moments.length === 0
+					? (isChinese ? '还没有动态，等一个想分享的瞬间。' : 'Waiting for a little moment to share.')
+					: (isChinese ? '先记到这里，下次再聊 ☺' : 'That’s all for now. See you around ☺')}</p>
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.moments-masthead { border-bottom: 3px solid var(--swiss-black); padding-bottom: 32px; margin-bottom: 48px; }
+	.masthead-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+	.meta-tag { font-size: 13px; font-weight: 900; letter-spacing: .08em; background: var(--swiss-black); color: #fff; padding: 3px 8px; text-transform: uppercase; }
+	.log-count { font-size: 12px; font-weight: 800; letter-spacing: .06em; color: var(--swiss-gray); text-transform: uppercase; }
+	.moments-title { font-size: clamp(36px, 6vw, 64px); font-weight: 900; letter-spacing: -.04em; line-height: .95; text-transform: uppercase; margin-bottom: 16px; }
+	.moments-eyebrow { font-size: 16px; max-width: 720px; line-height: 1.55; color: #333; margin-bottom: 0; }
+	.moments-feed { max-width: 800px; margin: 0 auto; }
+	.moment { display: flex; gap: 20px; padding: 28px 0; border-bottom: 1px solid var(--swiss-border-light); scroll-margin-top: 160px; }
+	.moment:first-child { padding-top: 0; }
+	.moment-avatar { flex-shrink: 0; width: 44px; height: 44px; background: var(--swiss-black); color: #fff; display: grid; place-items: center; font-size: 23px; font-weight: 900; }
+	.moment-content { min-width: 0; flex: 1; }
+	.moment-author { font-size: 14px; font-weight: 800; margin-bottom: 8px; }
+	.moment-body { font-size: 16px; line-height: 1.75; color: #111; }
+	.moment-body :global(p) { margin: 0 0 12px; color: inherit; line-height: inherit; }
+	.moment-body :global(p:last-child) { margin-bottom: 0; }
+	.moment-body :global(img) { max-height: 480px; object-fit: contain; margin: 12px 0; }
+	.moment-body :global(h1), .moment-body :global(h2), .moment-body :global(h3) { font-size: 18px; line-height: 1.5; margin: 16px 0 8px; }
+	.moment-body :global(pre) { max-width: 100%; }
+	.moment-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 510px; margin-top: 16px; }
+	.moment-images a { display: block; overflow: hidden; background: var(--swiss-light-gray); }
+	.moment-images :global(img) { width: 100%; aspect-ratio: 1; object-fit: cover; }
+	.single-image { grid-template-columns: 1fr; max-width: 340px; }
+	.single-image :global(img) { aspect-ratio: auto; max-height: 420px; object-fit: contain; }
+	.moment-location { font-size: 12px; color: var(--swiss-gray); margin: 12px 0 0; }
+	.moment-date { display: inline-block; margin-top: 14px; color: var(--swiss-gray); font-size: 12px; text-decoration: none; }
+	.moment-date:hover { color: var(--swiss-red); }
+	.moment-content a:focus-visible { outline: 2px solid var(--swiss-red); outline-offset: 4px; }
+	.feed-end { text-align: center; font-size: 12px; color: var(--swiss-gray); padding: 28px 0 0; margin: 0; }
+	@media (max-width: 768px) {
+		.moment { gap: 14px; padding: 24px 0; }
+		.moment-avatar { width: 36px; height: 36px; font-size: 20px; }
+		.moment-body { font-size: 15px; }
+	}
+</style>

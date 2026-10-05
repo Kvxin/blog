@@ -1,0 +1,140 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { localePath, type Locale } from '../i18n/ui';
+
+interface Props {
+	posts: CollectionEntry<'blog'>[];
+	locale: Locale;
+}
+const { posts, locale } = Astro.props;
+const offsets = ['0%', '4%', '1%', '6%', '2%'];
+---
+
+<featured-posts class="post-stack">
+	{posts.map((post, index) => (
+		<article class="post-row" style={`--offset: ${offsets[index % offsets.length]}; --layer: ${index + 1}`}>
+			<a class="post-link" href={localePath(`/blog/${post.data.translationKey}`, locale)}>
+				<span class="post-number" aria-hidden="true">{String(index + 1).padStart(2, '0')} /</span>
+				<div class="post-copy">
+					<h3>{post.data.title}</h3>
+					<p>{post.data.description}</p>
+				</div>
+				<span class="post-date"><FormattedDate date={post.data.pubDate} /></span>
+				<span class="post-arrow" aria-hidden="true">↗</span>
+				{post.data.heroImage && (
+					<div class="post-preview" aria-hidden="true">
+						<Image src={post.data.heroImage} alt="" width={480} class="preview-image" />
+					</div>
+				)}
+			</a>
+		</article>
+	))}
+</featured-posts>
+
+<style>
+	.post-stack { display: block; position: relative; isolation: isolate; padding: 12px 0 28px; }
+	.post-row { position: relative; z-index: var(--layer); margin-left: var(--offset); background: #fff; border: 1.5px solid var(--swiss-black); transition: transform .25s ease, box-shadow .25s ease; }
+	.post-row + .post-row { margin-top: -8px; }
+	.post-link { display: flex; align-items: center; gap: 24px; min-height: 136px; padding: 28px 30px; color: var(--swiss-black); text-decoration: none; }
+	.post-number { flex-shrink: 0; color: #b9b9b9; font-size: clamp(30px, 4vw, 52px); font-weight: 800; letter-spacing: -.06em; line-height: 1; }
+	.post-copy { min-width: 0; flex: 1; }
+	.post-copy h3 { font-size: clamp(17px, 2vw, 22px); font-weight: 800; line-height: 1.35; margin: 0; }
+	.post-copy p { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--swiss-gray); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+	.post-date { font-size: 11px; font-weight: 600; white-space: nowrap; color: var(--swiss-gray); }
+	.post-arrow { font-size: 25px; transition: transform .25s ease; }
+	.post-preview { display: none; }
+	.post-row:focus-within { z-index: 20; box-shadow: 0 12px 28px #0002; transform: translateY(-5px); }
+	.post-link:focus-visible { outline: 3px solid var(--swiss-red); outline-offset: 4px; }
+	@media (hover: hover) and (pointer: fine) and (min-width: 769px) {
+		.post-row:hover { z-index: 20; box-shadow: 0 14px 32px #0003; transform: translateY(-5px); }
+		.post-row:hover .post-arrow, .post-row:focus-within .post-arrow { color: var(--swiss-red); transform: translate(3px, -3px); }
+		.post-preview { display: block; position: absolute; left: 0; top: 0; width: clamp(180px, 20vw, 260px); pointer-events: none; opacity: 0; visibility: hidden; transform: translate3d(var(--preview-x, 620px), var(--preview-y, 68px), 0) translate(-50%, -50%) rotate(var(--preview-rotation, 0deg)) scale(.94); transition: opacity .18s ease, visibility .18s ease; box-shadow: 0 18px 38px #0004; border: 7px solid #fff; }
+		.preview-image { width: 100%; height: auto; max-height: 300px; object-fit: cover; }
+		.post-row:hover .post-preview, .post-row:focus-within .post-preview { opacity: 1; visibility: visible; }
+		.post-row:focus-within:not(:hover) .post-preview { left: 65%; top: 50%; transform: translate(-50%, -50%); }
+	}
+	@media (max-width: 768px), (hover: none), (pointer: coarse) {
+		.post-stack { padding-top: 4px; }
+		.post-link { gap: 16px; min-height: 128px; padding: 24px 18px; flex-wrap: wrap; }
+		.post-number { font-size: 32px; }
+		.post-copy { flex-basis: calc(100% - 90px); }
+		.post-date { margin-left: 67px; }
+		.post-arrow { margin-left: auto; font-size: 20px; }
+		.post-preview { display: block; flex-basis: 100%; margin-left: 67px; max-width: 260px; }
+		.preview-image { width: 100%; max-height: 140px; object-fit: cover; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.post-row, .post-arrow, .post-preview { transition: none; }
+		.post-row:hover, .post-row:focus-within { transform: none; }
+	}
+</style>
+
+<script>
+	// A custom element reconnects automatically after Astro's client-side navigation.
+	class FeaturedPosts extends HTMLElement {
+		private cleanup?: () => void;
+		connectedCallback() {
+			this.cleanup?.();
+			const controller = new AbortController();
+			const frames = new Set<number>();
+			const canAnimate = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 769px)');
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+			this.querySelectorAll<HTMLElement>('.post-row').forEach((row) => {
+				const preview = row.querySelector<HTMLElement>('.post-preview');
+				if (!preview) return;
+				let x = 0, y = 0, targetX = 0, targetY = 0, rotation = 0, impulse = 0;
+				let previousX = 0, previousTime = 0, frame = 0;
+				const paint = () => {
+					preview.style.setProperty('--preview-x', `${x}px`);
+					preview.style.setProperty('--preview-y', `${y}px`);
+					preview.style.setProperty('--preview-rotation', `${rotation}deg`);
+				};
+				const position = (event: PointerEvent) => {
+					const bounds = row.getBoundingClientRect();
+					const halfWidth = preview.offsetWidth / 2 + 12;
+					targetX = Math.max(halfWidth, Math.min(bounds.width - halfWidth, event.clientX - bounds.left));
+					targetY = Math.max(12, Math.min(bounds.height - 12, event.clientY - bounds.top));
+				};
+				const animate = (time: number) => {
+					frames.delete(frame);
+					const elapsed = Math.min(time - previousTime || 16, 40);
+					previousTime = time;
+					const easing = 1 - Math.exp(-elapsed / 85);
+					x += (targetX - x) * easing;
+					y += (targetY - y) * easing;
+					rotation += (impulse - rotation) * easing;
+					// The tilt comes from horizontal motion, then decays even if the cursor stops.
+					impulse *= Math.exp(-elapsed / 100);
+					paint();
+					if (Math.abs(targetX - x) + Math.abs(targetY - y) + Math.abs(rotation) + Math.abs(impulse) > .05) {
+						frame = requestAnimationFrame(animate);
+						frames.add(frame);
+					} else { frame = 0; }
+				};
+				row.addEventListener('pointerenter', (event) => {
+					if (!canAnimate.matches) return;
+					position(event);
+					x = targetX; y = targetY; rotation = impulse = 0; previousX = event.clientX;
+					paint();
+				}, { signal: controller.signal });
+				row.addEventListener('pointermove', (event) => {
+					if (!canAnimate.matches) return;
+					position(event);
+					if (reducedMotion.matches) { x = targetX; y = targetY; rotation = 0; paint(); return; }
+					impulse = Math.max(-9, Math.min(9, (event.clientX - previousX) * .35));
+					previousX = event.clientX;
+					if (!frame) { previousTime = performance.now(); frame = requestAnimationFrame(animate); frames.add(frame); }
+				}, { signal: controller.signal });
+				row.addEventListener('pointerleave', () => {
+					cancelAnimationFrame(frame); frames.delete(frame); frame = 0;
+					rotation = impulse = 0; paint();
+				}, { signal: controller.signal });
+			});
+			this.cleanup = () => { controller.abort(); frames.forEach(cancelAnimationFrame); frames.clear(); };
+		}
+		disconnectedCallback() { this.cleanup?.(); }
+	}
+	if (!customElements.get('featured-posts')) customElements.define('featured-posts', FeaturedPosts);
+</script>

@@ -1,0 +1,122 @@
+---
+import BaseHead from "../BaseHead.astro";
+import Footer from "../Footer.astro";
+import Header from "../Header.astro";
+import FeaturedPosts from "../FeaturedPosts.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { getLocale, localePath, ui, getEntryLocale } from "../../i18n/ui";
+import { getCollection } from "astro:content";
+
+const locale = getLocale(Astro.url.pathname);
+const t = ui[locale];
+
+const posts = (
+  await getCollection("blog", (post) => getEntryLocale(post) === locale)
+)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 5);
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <!-- Hero Section -->
+      <section class="swiss-hero">
+        <h1 class="huge-title">
+          WRITE.<br />
+          THINK.<br />
+          <span class="accent-red">CREATE.</span>
+        </h1>
+        <p class="hero-statement">
+          {
+            locale === "zh-cn"
+              ? "欢迎来到 KVXIN BLOG。记录技术探索、产品思考与日常随笔。"
+              : "Welcome to KVXIN BLOG. Documenting technology, thoughts, and reflections."
+          }
+        </p>
+      </section>
+
+      <!-- Selected Articles Section -->
+      <section class="featured-section">
+        <div class="section-masthead">
+          <div class="masthead-title">
+            <h2>{t.latestPosts}</h2>
+          </div>
+          <a href={localePath("/blog", locale)} class="masthead-more">
+            {locale === "zh-cn" ? "查看全部文章" : "ALL ARTICLES"} &rarr;
+          </a>
+        </div>
+
+        <FeaturedPosts posts={posts} locale={locale} />
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  /* Hero Section */
+  .swiss-hero {
+    margin-bottom: 60px;
+    padding-bottom: 56px;
+  }
+
+  .huge-title {
+    font-size: clamp(48px, 9vw, 96px);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    word-break: break-word;
+  }
+
+  .hero-statement {
+    font-size: clamp(17px, 2.5vw, 22px);
+    font-weight: 600;
+    max-width: 760px;
+    line-height: 1.45;
+    color: #111111;
+    margin-bottom: 0;
+  }
+
+  /* Featured Section */
+  .featured-section {
+    margin-top: 20px;
+  }
+
+  .section-masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--swiss-black);
+    padding-bottom: 12px;
+    margin-bottom: 28px;
+  }
+
+  .masthead-title h2 {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .masthead-more {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--swiss-black);
+  }
+
+  .masthead-more:hover {
+    color: var(--swiss-red);
+  }
+</style>

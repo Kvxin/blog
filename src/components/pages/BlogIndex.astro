@@ -1,0 +1,391 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseHead from '../BaseHead.astro';
+import Footer from '../Footer.astro';
+import FormattedDate from '../FormattedDate.astro';
+import Header from '../Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getEntryLocale, getLocale, localePath, ui } from '../../i18n/ui';
+
+const locale = getLocale(Astro.url.pathname);
+const t = ui[locale];
+
+const posts = (await getCollection('blog', (post) => getEntryLocale(post) === locale)).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const featuredPost = posts[0];
+const otherPosts = posts.slice(1);
+---
+
+<!doctype html>
+<html lang={locale}>
+	<head>
+		<BaseHead title={`${t.blog} — ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<!-- Archive Header Strip -->
+			<div class="archive-header">
+				<div class="header-meta">
+					<span class="meta-badge">{locale === 'zh-cn' ? '文章' : 'ARTICLES'}</span>
+					<span class="count-badge">{posts.length} {locale === 'zh-cn' ? '篇文章' : 'POSTS'}</span>
+				</div>
+				<h1 class="archive-title">
+					{locale === 'zh-cn' ? '全部文章' : 'ALL ARTICLES'}
+				</h1>
+				<p class="archive-desc">
+					{locale === 'zh-cn'
+						? '记录与分享技术探索、产品思考与经验总结。'
+						: 'Writing and thoughts on engineering, design, and technology.'}
+				</p>
+			</div>
+
+			<!-- Featured Lead Entry -->
+			{featuredPost && (
+				<section class="featured-entry">
+					<div class="featured-badge">
+						<span>{locale === 'zh-cn' ? '最新文章' : 'LATEST POST'}</span>
+						<span class="featured-date"><FormattedDate date={featuredPost.data.pubDate} /></span>
+					</div>
+					<div class="featured-body">
+						{featuredPost.data.heroImage && (
+							<div class="featured-image-box">
+								<a href={localePath(`/blog/${featuredPost.data.translationKey}`, locale)}>
+									<Image width={900} height={480} src={featuredPost.data.heroImage} alt="" class="lead-image" />
+								</a>
+							</div>
+						)}
+						<div class="featured-content">
+							<h2 class="featured-title">
+								<a href={localePath(`/blog/${featuredPost.data.translationKey}`, locale)}>
+									{featuredPost.data.title}
+								</a>
+							</h2>
+							<p class="featured-summary">
+								{featuredPost.data.description}
+							</p>
+							<a href={localePath(`/blog/${featuredPost.data.translationKey}`, locale)} class="read-btn">
+								{t.readMore} &rarr;
+							</a>
+						</div>
+					</div>
+				</section>
+			)}
+
+			<!-- Secondary Articles Grid -->
+			{otherPosts.length > 0 && (
+				<section class="posts-grid-section">
+					<div class="grid-section-bar">
+						<span>{locale === 'zh-cn' ? '更多文章' : 'ALL POSTS'}</span>
+						<span>02 — {String(posts.length).padStart(2, '0')}</span>
+					</div>
+					<div class="swiss-posts-grid">
+						{otherPosts.map((post, idx) => (
+							<article class="post-card">
+								<div class="card-top">
+									<span class="card-id">ENTRY {String(idx + 2).padStart(2, '0')}</span>
+									<span class="card-date"><FormattedDate date={post.data.pubDate} /></span>
+								</div>
+								{post.data.heroImage && (
+									<div class="card-img-container">
+										<a href={localePath(`/blog/${post.data.translationKey}`, locale)}>
+											<Image width={600} height={340} src={post.data.heroImage} alt="" class="thumb-img" />
+										</a>
+									</div>
+								)}
+								<div class="card-inner">
+									<h3 class="card-heading">
+										<a href={localePath(`/blog/${post.data.translationKey}`, locale)}>
+											{post.data.title}
+										</a>
+									</h3>
+									<p class="card-text">{post.data.description}</p>
+									<a href={localePath(`/blog/${post.data.translationKey}`, locale)} class="card-action-btn">
+										<span>{t.readMore}</span>
+										<span>&rarr;</span>
+									</a>
+								</div>
+							</article>
+						))}
+					</div>
+				</section>
+			)}
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.archive-header {
+		border-bottom: 3px solid var(--swiss-black);
+		padding-bottom: 32px;
+		margin-bottom: 48px;
+	}
+
+	.header-meta {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		margin-bottom: 12px;
+	}
+
+	.meta-badge {
+		font-size: 13px;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		background: var(--swiss-black);
+		color: #ffffff;
+		padding: 3px 8px;
+		text-transform: uppercase;
+	}
+
+	.count-badge {
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 0.06em;
+		color: var(--swiss-gray);
+		text-transform: uppercase;
+	}
+
+	.archive-title {
+		font-size: clamp(36px, 6vw, 64px);
+		font-weight: 900;
+		letter-spacing: -0.04em;
+		line-height: 0.95;
+		text-transform: uppercase;
+		margin-bottom: 16px;
+	}
+
+	.archive-desc {
+		font-size: 16px;
+		max-width: 720px;
+		line-height: 1.55;
+		color: #333333;
+		margin-bottom: 0;
+	}
+
+	/* Featured Entry */
+	.featured-entry {
+		border: 2px solid var(--swiss-black);
+		background: #ffffff;
+		margin-bottom: 60px;
+	}
+
+	.featured-badge {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 10px 20px;
+		background: var(--swiss-light-gray);
+		border-bottom: 2px solid var(--swiss-black);
+		font-size: 12px;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.featured-date {
+		color: var(--swiss-red);
+	}
+
+	.featured-body {
+		display: grid;
+		grid-template-columns: 1.2fr 1fr;
+		gap: 32px;
+		padding: 28px;
+		align-items: center;
+	}
+
+	@media (max-width: 860px) {
+		.featured-body {
+			grid-template-columns: 1fr;
+			gap: 20px;
+			padding: 20px;
+		}
+	}
+
+	.featured-image-box {
+		border: 1px solid var(--swiss-black);
+		overflow: hidden;
+	}
+
+	.lead-image {
+		width: 100%;
+		height: auto;
+		display: block;
+		transition: transform 0.25s ease;
+	}
+
+	.featured-image-box:hover .lead-image {
+		transform: scale(1.02);
+	}
+
+	.featured-title {
+		font-size: clamp(24px, 3.5vw, 36px);
+		font-weight: 900;
+		line-height: 1.1;
+		letter-spacing: -0.03em;
+		margin-bottom: 14px;
+	}
+
+	.featured-title a {
+		text-decoration: none;
+		color: var(--swiss-black);
+	}
+
+	.featured-title a:hover {
+		color: var(--swiss-red);
+	}
+
+	.featured-summary {
+		font-size: 15px;
+		line-height: 1.6;
+		color: #444444;
+		margin-bottom: 24px;
+	}
+
+	.read-btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 10px 20px;
+		background: var(--swiss-black);
+		color: #ffffff;
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		text-decoration: none;
+		border: 1.5px solid var(--swiss-black);
+		transition: background-color 0.15s ease, border-color 0.15s ease;
+	}
+
+	.read-btn:hover {
+		background: var(--swiss-red);
+		border-color: var(--swiss-red);
+		color: #ffffff;
+	}
+
+	/* Grid Section */
+	.posts-grid-section {
+		margin-top: 40px;
+	}
+
+	.grid-section-bar {
+		display: flex;
+		justify-content: space-between;
+		font-size: 13px;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		border-bottom: 2px solid var(--swiss-black);
+		padding-bottom: 10px;
+		margin-bottom: 32px;
+	}
+
+	.swiss-posts-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 32px;
+	}
+
+	@media (max-width: 768px) {
+		.swiss-posts-grid {
+			grid-template-columns: 1fr;
+			gap: 24px;
+		}
+	}
+
+	.post-card {
+		border: 1.5px solid var(--swiss-black);
+		background: #ffffff;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.card-top {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 10px 16px;
+		background: var(--swiss-light-gray);
+		border-bottom: 1px solid var(--swiss-black);
+		font-size: 11px;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.card-date {
+		color: var(--swiss-red);
+	}
+
+	.card-img-container {
+		border-bottom: 1px solid var(--swiss-black);
+		overflow: hidden;
+	}
+
+	.thumb-img {
+		width: 100%;
+		height: 200px;
+		object-fit: cover;
+		transition: transform 0.25s ease;
+	}
+
+	.post-card:hover .thumb-img {
+		transform: scale(1.03);
+	}
+
+	.card-inner {
+		padding: 20px;
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+	}
+
+	.card-heading {
+		font-size: 20px;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		line-height: 1.25;
+		margin-bottom: 10px;
+	}
+
+	.card-heading a {
+		text-decoration: none;
+		color: var(--swiss-black);
+	}
+
+	.card-heading a:hover {
+		color: var(--swiss-red);
+	}
+
+	.card-text {
+		font-size: 13.5px;
+		color: #555555;
+		line-height: 1.55;
+		margin-bottom: 20px;
+		flex-grow: 1;
+	}
+
+	.card-action-btn {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-top: 12px;
+		border-top: 1px solid var(--swiss-border-light);
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--swiss-black);
+		margin-top: auto;
+	}
+
+	.post-card:hover .card-action-btn {
+		color: var(--swiss-red);
+	}
+</style>

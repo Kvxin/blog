@@ -1,0 +1,10 @@
+---
+import BlogIndex from '../../../components/pages/BlogIndex.astro';
+import { getLocaleStaticPaths } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+	return getLocaleStaticPaths();
+}
+---
+
+<BlogIndex />

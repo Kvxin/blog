@@ -1,0 +1,36 @@
+---
+import AboutHeroImage from '../../assets/blog-placeholder-about.jpg';
+import Layout from '../../layouts/BlogPost.astro';
+import { getLocale, ui } from '../../i18n/ui';
+
+const locale = getLocale(Astro.url.pathname);
+const t = ui[locale];
+---
+
+<Layout
+	title={t.aboutTitle}
+	description={locale === 'zh-cn' ? '关于我与 KVXIN BLOG' : 'About me and KVXIN BLOG'}
+	pubDate={new Date('August 08 2021')}
+	heroImage={AboutHeroImage}
+>
+	<h2>{locale === 'zh-cn' ? '关于我' : 'About Me'}</h2>
+	<p>
+		{locale === 'zh-cn'
+			? '你好，我是 KVXIN。这里是我的个人博客，用来记录技术探索、产品思考与生活杂感。'
+			: 'Hello, I am KVXIN. Welcome to my personal blog where I share notes on programming, design, and life.'}
+	</p>
+
+	<h2>{locale === 'zh-cn' ? '关注领域' : 'Interests'}</h2>
+	<p>
+		{locale === 'zh-cn'
+			? '我热衷于 Web 开发、前沿工程技术与简洁直观的产品交互设计，喜欢探索能够提升效率和创造力的新工具。'
+			: 'Passionate about web development, engineering practices, and clean user experience. Always excited about new tools that empower creativity.'}
+	</p>
+
+	<h2>{locale === 'zh-cn' ? '网站构建' : 'Colophon'}</h2>
+	<p>
+		{locale === 'zh-cn'
+			? '本站基于 Astro 构建，采用极简无衬线排版，追求极速的加载性能与纯粹的阅读体验。'
+			: 'Built with Astro, focused on high performance and clean, distraction-free reading.'}
+	</p>
+</Layout>

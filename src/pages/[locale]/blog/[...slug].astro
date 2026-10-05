@@ -1,12 +1,12 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
-import { defaultLocale, getEntryLocale } from '../../i18n/ui';
+import BlogPost from '../../../layouts/BlogPost.astro';
+import { defaultLocale, getEntryLocale } from '../../../i18n/ui';
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog', (post) => getEntryLocale(post) === defaultLocale);
+	const posts = await getCollection('blog', (post) => getEntryLocale(post) !== defaultLocale);
 	return posts.map((post) => ({
-		params: { slug: post.data.translationKey },
+		params: { locale: getEntryLocale(post), slug: post.data.translationKey },
 		props: post,
 	}));
 }
@@ -19,6 +19,9 @@ const { Content } = await render(post);
 <BlogPost {...post.data}>
 	<Content />
 </BlogPost>
+
+
+
 
 
 

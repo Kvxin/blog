@@ -1,0 +1,10 @@
+---
+import MomentsPage from '../../../components/pages/MomentsPage.astro';
+import { getLocaleStaticPaths } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+	return getLocaleStaticPaths();
+}
+---
+
+<MomentsPage />

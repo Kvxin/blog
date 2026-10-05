@@ -3,11 +3,22 @@
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
+import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
+import { defaultLocale, locales } from './src/i18n/locales.ts';
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://example.com',
-	integrations: [mdx(), sitemap()],
+	i18n: {
+		locales,
+		defaultLocale,
+		routing: {
+			prefixDefaultLocale: false,
+		},
+	},
+	integrations: [mdx(), sitemap(), react()],
+	vite: { plugins: [tailwindcss()] },
 	fonts: [
 		{
 			provider: fontProviders.local(),
@@ -33,3 +44,4 @@ export default defineConfig({
 		},
 	],
 });
+
