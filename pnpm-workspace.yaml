@@ -1,2 +1,10 @@
+packages:
+  - apps/*
+  - packages/*
+
 allowBuilds:
   esbuild: true
+  '@nestjs/core': false
+  '@prisma/engines': true
+  prisma: true
+  '@prisma/client': false

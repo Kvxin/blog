@@ -1,0 +1,74 @@
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; }
+body { margin: 0; -webkit-text-size-adjust: 100%; }
+.admin-layout, .auth-loading, .login-page { min-height: 100%; min-height: 100svh; min-height: 100dvh; }
+.admin-main, .admin-content, .page-content { min-width: 0; }
+.admin-sidebar { position: sticky !important; top: 0; height: 100dvh; overflow-y: auto; }
+.brand { padding: 24px; color: white; font-size: 20px; font-weight: 700; }
+.admin-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; background: white; height: auto; min-height: 64px; line-height: 1.5; }
+.admin-header-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.admin-content { padding: 24px; }
+.page-content { margin-top: 24px; }
+.full-width { width: 100%; min-width: 0; }
+.full-width > .ant-space-item { min-width: 0; max-width: 100%; }
+.auth-loading { display: grid; place-items: center; padding: 24px; }
+.login-page { display: grid; place-items: center; padding: 24px; background: #f0f2f5; }
+.login-card { width: 100%; max-width: 460px; }
+.markdown-preview { min-height: 200px; padding: 16px; background: #fafafa; overflow-wrap: anywhere; }
+.markdown-preview pre { overflow: auto; max-width: 100%; }
+.markdown-preview img { max-width: 100%; }
+.media-thumbnail { display: flex; align-items: center; justify-content: center; min-height: 150px; background: #fafafa; }
+.mobile-record-list { display: grid; gap: 12px; min-width: 0; }
+.mobile-record-fields { margin: 0; }
+.mobile-record-field { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 12px; padding: 7px 0; }
+.mobile-record-field dt { color: #6b7280; font-size: 13px; }
+.mobile-record-field dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.mobile-record-field dd .ant-btn-link { padding: 0; height: auto; text-align: left; white-space: normal; }
+.mobile-record-field dd .ant-tag { margin-bottom: 4px; white-space: normal; }
+.editor-actions { flex-wrap: wrap; }
+
+@media (max-width: 767px) {
+  .admin-header { position: sticky; top: 0; z-index: 20; min-height: 56px; padding: env(safe-area-inset-top, 0px) max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid #edf0f3; }
+  .admin-header-title { gap: 6px; }
+  .admin-header .ant-btn { width: 44px; height: 44px; }
+  .admin-content { padding: 16px max(12px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
+  .page-content { margin-top: 16px; }
+  .page-content h2.ant-typography { font-size: 24px; line-height: 1.3; margin-bottom: 16px; }
+  .page-content .ant-card-head { padding-inline: 16px; }
+  .page-content .ant-card-head-wrapper { gap: 12px; flex-wrap: wrap; padding-block: 12px; }
+  .page-content .ant-card-head-title { white-space: normal; }
+  .page-content .ant-card-body { padding: 16px; }
+  .page-content .ant-card .ant-card .ant-card-body { padding: 12px; }
+  .ant-form-item-label > label { height: auto; white-space: normal; line-height: 1.5; }
+  .ant-form-item { margin-bottom: 20px; }
+  .ant-input, .ant-input-affix-wrapper input, .ant-input-number-input, .ant-select-selection-search-input, .ant-select-selection-item { font-size: 16px !important; }
+  .ant-btn { min-height: 40px; white-space: normal; }
+  .ant-select-single, .ant-input-number { min-height: 40px; }
+  .ant-space { max-width: 100%; }
+  .editor-actions, .list-toolbar { width: 100%; }
+  .editor-actions > .ant-space-item { flex: 1 1 140px; }
+  .editor-actions .ant-btn { width: 100%; }
+  .list-toolbar > .ant-space-item { flex: 1 1 160px; min-width: 0; }
+  .list-toolbar > .ant-space-item:has(.ant-input-search) { flex-basis: 100%; }
+  .list-toolbar .ant-input-search, .list-toolbar .ant-select, .list-toolbar > .ant-space-item > div { width: 100% !important; }
+  .list-toolbar .ant-btn { width: 100%; }
+  .ant-descriptions-item-content { overflow-wrap: anywhere; min-width: 0; }
+  .ant-pagination { display: flex; flex-wrap: wrap; row-gap: 8px; }
+  .ant-modal { width: calc(100% - 24px) !important; max-width: calc(100% - 24px); margin-inline: auto; top: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
+  .ant-modal-container, .ant-modal-content { max-height: calc(100dvh - 24px); display: flex; flex-direction: column; }
+  .ant-modal-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .ant-modal-footer { flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .ant-drawer-content-wrapper { max-width: 100%; }
+  .ant-drawer-header { padding-top: max(16px, env(safe-area-inset-top, 0px)); }
+  .ant-drawer-body { padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); overscroll-behavior: contain; }
+  .mobile-nav-drawer .ant-drawer-body { padding-inline: 8px; }
+  .mobile-nav-drawer .ant-menu-item { min-height: 44px; }
+  .login-page { padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .login-card .ant-card-body { padding: 24px 20px; }
+  .markdown-preview { padding: 12px; }
+  textarea.ant-input { scroll-margin-top: 80px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

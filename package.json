@@ -1,34 +1,31 @@
 {
-  "name": "squalid-star",
-  "packageManager": "pnpm@11.25.0",
-  "type": "module",
+  "name": "blog-workspace",
+  "private": true,
   "version": "0.0.1",
-  "engines": {
-    "node": ">=22.12.0"
-  },
+  "packageManager": "pnpm@11.25.0",
+  "engines": { "node": ">=22.13.0" },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/mdx": "^8.0.2",
-    "@astrojs/react": "^7.0.0",
-    "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.4",
-    "@fontsource/inter": "^5.3.0",
-    "astro": "^7.3.5",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "sharp": "^0.35.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^1.49.0",
-    "tailwind-merge": "^3.7.0",
-    "tailwindcss": "^4.3.3"
+    "dev:web": "pnpm --filter @blog/web exec astro dev --background --host 127.0.0.1 --port 4322",
+    "dev:admin": "pnpm --filter @blog/contracts build && pnpm --filter @blog/admin dev",
+    "dev:api": "pnpm db:generate && pnpm --filter @blog/contracts build && pnpm --filter @blog/api dev",
+    "build": "pnpm db:generate && pnpm --filter @blog/contracts build && pnpm --filter @blog/api build && pnpm --filter @blog/admin build && pnpm --filter @blog/web build",
+    "build:web": "pnpm --filter @blog/web build",
+    "build:admin": "pnpm --filter @blog/contracts build && pnpm --filter @blog/admin build",
+    "build:api": "pnpm db:generate && pnpm --filter @blog/contracts build && pnpm --filter @blog/api build",
+    "typecheck": "pnpm db:generate && pnpm --filter @blog/contracts build && pnpm --filter @blog/admin typecheck && pnpm --filter @blog/api typecheck",
+    "test": "pnpm --filter @blog/contracts test",
+    "db:up": "docker compose --env-file .env -f deploy/docker-compose.yml up -d --wait",
+    "db:stop": "docker compose --env-file .env -f deploy/docker-compose.yml stop postgres",
+    "db:status": "docker compose --env-file .env -f deploy/docker-compose.yml ps",
+    "db:psql": "docker compose --env-file .env -f deploy/docker-compose.yml exec postgres psql -U blog -d blog",
+    "db:generate": "pnpm --filter @blog/api db:generate",
+    "admin:init": "pnpm --filter @blog/api admin:init",
+    "media:import": "pnpm --filter @blog/api media:import",
+    "test:api": "node scripts/smoke-api.mjs",
+    "test:taxonomy": "node scripts/smoke-taxonomy.mjs",
+    "test:publishing": "node scripts/smoke-publishing.mjs",
+    "db:migrate": "pnpm --filter @blog/api db:migrate",
+    "db:migrate:dev": "pnpm --filter @blog/api db:migrate:dev",
+    "deploy:web": "bash scripts/deploy-web.sh"
   }
 }

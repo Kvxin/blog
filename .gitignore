@@ -22,3 +22,15 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Workspace build outputs and local environment files
+**/dist/
+**/node_modules/
+**/.astro/
+**/.env
+**/.env.*
+!**/.env.example
+*.tsbuildinfo
+.pnpm-store/
+apps/api/src/generated/
+.web-deploy.lock

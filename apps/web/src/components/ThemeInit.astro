@@ -1,0 +1,42 @@
+<!-- 暂停主题切换：固定浅色，不读取或覆盖访客以前保存的偏好。 -->
+<script is:inline data-astro-rerun>
+  (() => {
+    document.documentElement.dataset.theme = 'light';
+    if (!window.__blogLightTheme) {
+      window.__blogLightTheme = true;
+      document.addEventListener('astro:before-swap', (event) => {
+        event.newDocument.documentElement.dataset.theme = 'light';
+      });
+    }
+    return;
+    /* 原主题切换逻辑暂时停用，恢复功能时移除上方固定浅色逻辑并取消注释。
+    if (window.__blogTheme) { window.__blogTheme.apply(); return; }
+    const key = 'kvxin-blog-theme';
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    let choice = 'system';
+    const valid = (value) => ['light', 'dark', 'system'].includes(value) ? value : 'system';
+    try { choice = valid(localStorage.getItem(key)); } catch {}
+    const resolved = () => choice === 'system' ? (media.matches ? 'dark' : 'light') : choice;
+    const apply = () => {
+      document.documentElement.dataset.theme = resolved();
+      document.querySelectorAll('[data-theme-select]').forEach((select) => { select.value = choice; });
+    };
+    window.__blogTheme = { apply };
+    document.addEventListener('change', (event) => {
+      if (!(event.target instanceof HTMLSelectElement) || !event.target.matches('[data-theme-select]')) return;
+      choice = valid(event.target.value);
+      try { localStorage.setItem(key, choice); } catch {}
+      apply();
+    });
+    media.addEventListener('change', apply);
+    window.addEventListener('storage', (event) => {
+      if (event.key === key || event.key === null) { choice = valid(event.newValue); apply(); }
+    });
+    document.addEventListener('astro:before-swap', (event) => {
+      event.newDocument.documentElement.dataset.theme = resolved();
+    });
+    document.addEventListener('astro:page-load', apply);
+    apply();
+    */
+  })();
+</script>

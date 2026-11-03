@@ -28,6 +28,10 @@ jobs:
       - name: Install, build, and upload Astro site
         uses: withastro/action@v6
         with:
+          path: .
+          build-cmd: pnpm build:web
+          out-dir: apps/web/dist
+          cache-dir: apps/web/node_modules/.astro
           node-version: 24
           package-manager: pnpm@11.25.0
 

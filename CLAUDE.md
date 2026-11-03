@@ -1,5 +1,9 @@
 ## Development
 
+The project is a pnpm workspace: `apps/web` (Astro), `apps/admin` (Ant Design),
+and `apps/api` (NestJS). Run workspace commands from the root. Nginx uses 4321;
+`pnpm dev:web` starts Astro in background mode on loopback port 4322.
+
 When starting the dev server, use background mode:
 
 ```

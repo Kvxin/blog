@@ -1,0 +1,16 @@
+---
+const { locale } = Astro.props;
+const chinese = locale === 'zh-cn';
+---
+<label class="theme-control">
+  <span class="sr-only">{chinese ? '主题模式' : 'Color theme'}</span>
+  <select data-theme-select aria-label={chinese ? '主题模式' : 'Color theme'}>
+    <option value="system">{chinese ? '跟随系统' : 'System'}</option>
+    <option value="light">{chinese ? '浅色' : 'Light'}</option>
+    <option value="dark">{chinese ? '深色' : 'Dark'}</option>
+  </select>
+</label>
+<style>
+  .theme-control select { min-height: 36px; max-width: 130px; padding: 6px 8px; border: 1px solid var(--swiss-border); background: var(--swiss-bg); color: var(--swiss-black); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .theme-control select:focus-visible { outline: 2px solid var(--swiss-red); outline-offset: 3px; }
+</style>
